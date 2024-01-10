@@ -12,6 +12,8 @@ code atcoder-rust-devcontainer
 ```
 - reopen in containerする
     - 初回やDockerfileを編集した後はビルドされるので遅い(約40~50分．．．)
+- `.env`を作成する
+    - `.env.example`を編集し，ログインに必要な情報を環境変数化する
 ### コンテスト参加
 - コンテストディレクトリを作成 
 ```bash
