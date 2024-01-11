@@ -24,3 +24,8 @@ cargo compete login atcoder <<EOF
 $ATCODER_USERNAME
 $ATCODER_PASSWORD
 EOF
+
+# Sign in automatically for yukicoder
+cargo compete login yukicoder <<EOF
+$YUKICODER_API_KEY
+EOF
