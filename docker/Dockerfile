@@ -38,9 +38,9 @@ RUN chmod +x /usr/local/bin/cargo_compete_new.sh
 
 # user setting
 USER $UID:$GID
-ENV HOME=/workspace
-WORKDIR /workspace
-RUN chmod -R ugo+wrx "/workspace"
+ENV HOME=/workspaces
+WORKDIR ${HOME}
+RUN chmod -R ugo+wrx ${HOME}
 COPY bash.bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
 

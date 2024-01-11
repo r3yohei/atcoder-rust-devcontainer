@@ -24,3 +24,6 @@ PROMPT_COMMAND="add_line"
 # git
 git config --global user.email r3yohei@gmail.com
 git config --global user.name r3yohei
+
+# pipによるバイナリのデフォルトのインストール先は~/.local/binであるが，ubuntuのデフォルトの$PATHに含まれないので追記する
+export PATH="$HOME/.local/bin:$PATH"
