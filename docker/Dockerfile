@@ -77,6 +77,7 @@ RUN pip install --upgrade pip && \
     pulp \
     japanize-matplotlib \
     ray[default]
+RUN pip install --user online-judge-tools
 
 # Rust
 ENV RUST_HOME /usr/local/lib/rust
