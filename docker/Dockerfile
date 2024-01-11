@@ -93,7 +93,6 @@ RUN cargo install exa
 RUN cargo install --locked bat
 RUN cargo install cargo-compete
 RUN cargo install cargo-edit
-RUN cargo install cargo-member
 RUN cargo install cargo-watch
 RUN cargo install cargo-generate
 RUN cargo install cargo-snippet --features="binaries"

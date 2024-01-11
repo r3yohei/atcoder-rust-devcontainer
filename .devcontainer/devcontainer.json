@@ -1,8 +1,6 @@
 {
     "name": "${localWorkspaceFolderBasename}",
-    "build": {
-        "dockerfile": "Dockerfile"
-    },
+    "image": "docker.io/library/atcoder-rust-devcontainer:latest",
     "mounts": [
         "source=${localWorkspaceFolderBasename}-target,target=${containerWorkspaceFolder}/target,type=volume"
     ],
@@ -17,14 +15,38 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "EditorConfig.EditorConfig",
                 "rust-lang.rust-analyzer",
+                "ms-python.python",
+                "magicstack.MagicPython",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-renderers",
+                "ms-vscode.cpptools",
+                "ms-vscode-remote.remote-wsl",
+                "ms-azuretools.vscode-docker",
+                "marp-team.marp-vscode",
+                "adpyke.codesnap",
                 "tamasfe.even-better-toml",
-                "vadimcn.vscode-lldb"
+                "vadimcn.vscode-lldb",
+                "tomoki1207.pdf",
+                "yzane.markdown-pdf",
+                "mechatroner.rainbow-csv",
+                "christian-kohler.path-intellisense"
             ],
             "settings": {
+                "rust-analyzer.check.command": "clippy",
+                "rust-analyzer.check.extraArgs": [
+                    "--",
+                    "-A",
+                    "clippy::needless_return"
+                ],
+                "[rust]": {
+                    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+                },
                 "editor.formatOnSave": true,
-                "rust-analyzer.check.command": "clippy"
+                "editor.fontFamily": "CommitMono",
+                "editor.fontLigatures": true,
+                "workbench.colorTheme": "Default High Contrast"
             }
         }
     }
