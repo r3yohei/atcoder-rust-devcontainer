@@ -22,7 +22,8 @@ RUN apt-get update \
     pkg-config \
     build-essential \
     jq \
-    software-properties-common
+    software-properties-common \
+    python3-pip
 
 # timezone
 RUN ln -fs /usr/share/zoneinfo/Azia/Tokyo /etc/localtime && \
@@ -44,20 +45,10 @@ RUN chmod -R ugo+wrx ${HOME}
 COPY bash.bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
 
-# Python
-RUN apt-get install -y -q \
-    python3-pip \
-    python3-launchpadlib
-RUN add-apt-repository -y ppa:deadsnakes/ppa
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y -q \
-    python3.10
-
 # miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3 && \
-    rm -r Miniconda3-latest-Linux-x86_64.sh
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py311_23.11.0-2-Linux-x86_64.sh && \
+    bash Miniconda3-py311_23.11.0-2-Linux-x86_64.sh -b -p /opt/miniconda3 && \
+    rm -r Miniconda3-py311_23.11.0-2-Linux-x86_64.sh
 ENV PATH /opt/miniconda3/bin:$PATH
 
 # install python package with conda
@@ -69,7 +60,11 @@ RUN conda install -n base ipykernel --update-deps --force-reinstall -y && \
     conda install -c conda-forge nbformat -y && \
     conda install -c conda-forge python-kaleido -y && \
     # optuna
-    conda install -c conda-forge optuna
+    conda install -c conda-forge optuna -y && \
+    # ML
+    conda install -c conda-forge statsmodels -y && \
+    conda install -c conda-forge scikit-learn -y && \
+    conda install -c conda-forge scipy -y
 
 # install python package with pip
 RUN pip install --upgrade pip && \

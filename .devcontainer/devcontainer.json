@@ -31,7 +31,8 @@
                 "tomoki1207.pdf",
                 "yzane.markdown-pdf",
                 "mechatroner.rainbow-csv",
-                "christian-kohler.path-intellisense"
+                "christian-kohler.path-intellisense",
+                "ms-vscode.live-server"
             ],
             "settings": {
                 "rust-analyzer.check.command": "clippy",
