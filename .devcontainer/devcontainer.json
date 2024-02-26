@@ -32,7 +32,8 @@
                 "yzane.markdown-pdf",
                 "mechatroner.rainbow-csv",
                 "christian-kohler.path-intellisense",
-                "ms-vscode.live-server"
+                "ms-vscode.live-server",
+                "MS-vsliveshare.vsliveshare"
             ],
             "settings": {
                 "rust-analyzer.check.command": "clippy",
