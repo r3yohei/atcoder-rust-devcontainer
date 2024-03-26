@@ -29,3 +29,5 @@ EOF
 cargo compete login yukicoder <<EOF
 $YUKICODER_API_KEY
 EOF
+
+git config --global --add safe.directory $WORKSPACE_FOLDER/src/contest/ahc_tester

@@ -6,7 +6,8 @@
     ],
     "runArgs": [
         "--env-file",
-        ".devcontainer/.env"
+        ".devcontainer/.env",
+        "--shm-size=8gb"
     ],
     "containerEnv": {
         "WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
