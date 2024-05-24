@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
@@ -34,8 +34,12 @@ COPY ./entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # copy shell to exec cargo compete new
-COPY ./cargo_compete_new.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/cargo_compete_new.sh
+COPY ./new.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/new.sh
+
+# copy shell to exec cargo compete submit
+COPY ./submit.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/submit.sh
 
 # user setting
 USER $UID:$GID
@@ -86,10 +90,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ${RUST_HOME}/rus
 ENV PATH $PATH:$CARGO_HOME/bin
 
 RUN cargo install exa
-RUN cargo install --locked bat
-RUN cargo install cargo-compete
-RUN cargo install cargo-edit --version 0.10.4
-RUN cargo install cargo-watch
-RUN cargo install cargo-generate
+RUN cargo install bat --locked
+RUN cargo install cargo-compete --locked
+RUN cargo install cargo-edit --locked
 RUN cargo install cargo-snippet --features="binaries"
 RUN rustup component add rustfmt

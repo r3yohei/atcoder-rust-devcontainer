@@ -7,8 +7,9 @@
     "runArgs": [
         "--env-file",
         ".devcontainer/.env",
-        "--shm-size=8gb"
+        "--shm-size=4gb"
     ],
+    "forwardPorts": [8192, 8888],
     "containerEnv": {
         "WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
     },
@@ -34,7 +35,9 @@
                 "mechatroner.rainbow-csv",
                 "christian-kohler.path-intellisense",
                 "ms-vscode.live-server",
-                "MS-vsliveshare.vsliveshare"
+                "MS-vsliveshare.vsliveshare",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
             ],
             "settings": {
                 "rust-analyzer.check.command": "clippy",
