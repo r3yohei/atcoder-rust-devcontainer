@@ -7,7 +7,7 @@
     "runArgs": [
         "--env-file",
         ".devcontainer/.env",
-        "--shm-size=4gb"
+        "--shm-size=8gb"
     ],
     "forwardPorts": [8192, 8888],
     "containerEnv": {
