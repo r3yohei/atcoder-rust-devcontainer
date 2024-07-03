@@ -10,16 +10,7 @@ alias cat="bat"
 alias fd="fdfind"
 alias pip="pip3"
 alias python="python3"
-
-# 出力の後に改行を入れる
-function add_line {
-  if [[ -z "${PS1_NEWLINE_LOGIN}" ]]; then
-    PS1_NEWLINE_LOGIN=true
-  else
-    printf "\n"
-  fi
-}
-PROMPT_COMMAND="add_line"
+alias pbcopy="xsel --clipboard --input"
 
 # git
 git config --global user.email r3yohei@gmail.com
@@ -27,3 +18,6 @@ git config --global user.name r3yohei
 
 # pipによるバイナリのデフォルトのインストール先は~/.local/binであるが，ubuntuのデフォルトの$PATHに含まれないので追記する
 export PATH="$HOME/.local/bin:$PATH"
+
+# enable starship prompt
+eval "$(starship init bash)"

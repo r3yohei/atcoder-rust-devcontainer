@@ -23,7 +23,8 @@ RUN apt-get update \
     build-essential \
     jq \
     software-properties-common \
-    python3-pip
+    python3-pip \
+    xsel
 
 # timezone
 RUN ln -fs /usr/share/zoneinfo/Azia/Tokyo /etc/localtime && \
@@ -48,6 +49,10 @@ WORKDIR ${HOME}
 RUN chmod -R ugo+wrx ${HOME}
 COPY bash.bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
+
+# starship
+RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
+COPY starship.toml ${HOME}/.config/starship.toml
 
 # miniconda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py311_23.11.0-2-Linux-x86_64.sh && \
