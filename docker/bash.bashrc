@@ -21,3 +21,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # enable starship prompt
 eval "$(starship init bash)"
+
+# ssh-agentに秘密鍵を紐づける
+eval `ssh-agent`
+ssh-add ~/.ssh/id_rsa
