@@ -17,7 +17,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "rust-lang.rust-analyzer",
+                "rust-lang.rust-analyzer@0.3.1885", // 最新が1.70.0をサポートしていないため
                 "ms-python.python",
                 "magicstack.MagicPython",
                 "ms-python.vscode-pylance",
@@ -45,22 +45,6 @@
                     "--",
                     "-A",
                     "clippy::needless_return"
-                ],
-                "rust-analyzer.check.overrideCommand": [
-                    "cargo",
-                    "check",
-                    "--quiet",
-                    "--workspace",
-                    "--message-format=json",
-                    "--all-targets"
-                ],
-                "rust-analyzer.cargo.buildScripts.overrideCommand": [
-                    "cargo",
-                    "check",
-                    "--quiet",
-                    "--workspace",
-                    "--message-format=json",
-                    "--all-targets"
                 ],
                 "[rust]": {
                     "editor.defaultFormatter": "rust-lang.rust-analyzer"
