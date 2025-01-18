@@ -9,7 +9,7 @@
         ".devcontainer/.env",
         "--shm-size=8gb"
     ],
-    "forwardPorts": [8192, 8888],
+    "forwardPorts": [8192, 8888, 5173],
     "containerEnv": {
         "WORKSPACE_FOLDER": "${containerWorkspaceFolder}"
     },

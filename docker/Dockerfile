@@ -24,7 +24,9 @@ RUN apt-get update \
     jq \
     software-properties-common \
     python3-pip \
-    xsel
+    xsel \
+    nodejs \
+    npm
 
 # timezone
 RUN ln -fs /usr/share/zoneinfo/Azia/Tokyo /etc/localtime && \
@@ -49,6 +51,13 @@ WORKDIR ${HOME}
 RUN chmod -R ugo+wrx ${HOME}
 COPY bash.bashrc /etc/bash.bashrc
 RUN chmod a+rwx /etc/bash.bashrc
+
+# for visualizer
+RUN npm install -g n
+RUN n lts
+RUN apt purge -y nodejs npm
+RUN apt autoremove -y
+RUN npm install -g yarn
 
 # starship
 RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
@@ -94,9 +103,14 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ${RUST_HOME}/rus
     && ${RUST_HOME}/rustup.sh -y --default-toolchain 1.70.0 --no-modify-path
 ENV PATH $PATH:$CARGO_HOME/bin
 
-RUN cargo install exa
-RUN cargo install bat --locked
-RUN cargo install cargo-compete --locked
-RUN cargo install cargo-edit --locked
-RUN cargo install cargo-snippet --features="binaries"
+# wasm
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+# crates
+RUN rustup install stable
+RUN cargo +stable install exa
+RUN cargo +stable install bat
+RUN cargo +stable install cargo-compete
+RUN cargo +stable install cargo-edit
+RUN cargo +stable install cargo-snippet --features="binaries"
 RUN rustup component add rustfmt
