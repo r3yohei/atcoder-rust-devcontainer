@@ -24,23 +24,23 @@ test-suite = "{{ manifest_dir }}/testcases/{{ bin_alias }}.yml"
 src = '''
 #![allow(non_snake_case, unused)]
 
-use proconio::{*, marker::*, source::line::LineSource};
-use std::io::*;
-use std::{collections::*, fmt::format};
-use std::{cmp::*, vec};
+use itertools::Itertools;
+use proconio::{marker::*, source::line::LineSource, *};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 use rand_pcg::Pcg64Mcg;
-use itertools::Itertools;
+use rustc_hash::FxHashSet;
+use std::io::*;
+use std::{cmp::*, vec};
+use std::{collections::*, fmt::format};
 use superslice::Ext;
 
-const INF: i64 = 1_000_000_000;
+const INF: i64 = 1 << 60;
 const SEED: u128 = 8_192;
-const TL: f64 = 1.989;
 const DIJ: [(usize, usize); 4] = [(0, !0), (0, 1), (!0, 0), (1, 0)];
+const DIR: [char; 4] = ['L', 'R', 'U', 'D'];
+const TL: f64 = 1.989;
 
-
-/// 現在時刻を返す
 pub fn get_time() -> f64 {
     static mut STIME: f64 = -1.0;
     let t = std::time::SystemTime::now()
@@ -62,45 +62,43 @@ pub fn get_time() -> f64 {
     }
 }
 
-#[derive(Clone, Debug)]
-struct Input {
-    H: usize,
-    W: usize,
-    map: Vec<Vec<i64>>,
+pub trait ChangeMinMax {
+    fn chmin(&mut self, x: Self) -> bool;
+    fn chmax(&mut self, x: Self) -> bool;
 }
-impl Input {
-    fn new() -> Self {
-        input! {
-            H: usize,
-            W: usize,
-            map: [[i64; W]; H],
+impl<T: PartialOrd> ChangeMinMax for T {
+    fn chmin(&mut self, x: Self) -> bool {
+        *self > x && {
+            *self = x;
+            true
         }
-        Self {
-            H,
-            W,
-            map
+    }
+    fn chmax(&mut self, x: Self) -> bool {
+        *self < x && {
+            *self = x;
+            true
         }
     }
 }
 
 #[derive(Clone, Debug)]
-struct State {
-    visited: Vec<Vec<bool>>,
+struct Input {}
+impl Input {
+    fn new() -> Self {
+        todo!();
+    }
 }
 
+#[derive(Clone, Debug)]
+struct State {}
 impl State {
-    pub fn new(input: &Input) -> Self {
-        Self { visited: vec![vec![false; input.W]; input.H] }
+    fn new(input: &Input) -> Self {
+        todo!();
     }
 }
 
 fn main() {
     get_time();
-    let mut rng = Pcg64Mcg::new(SEED);
-    let input = Input::new();
-    let mut state = State::new(&input);
-
-    eprintln!("time: {}", get_time());
 }
 '''
 
