@@ -15,7 +15,6 @@ RUN apt-get update \
     tar \
     vim \
     curl \
-    tree \
     gcc \
     fd-find \
     libssl-dev \
@@ -71,6 +70,7 @@ ENV PATH /opt/miniconda3/bin:$PATH
 
 # install python package with conda
 # ipython kernel for jupyter
+RUN conda config --set solver classic
 RUN conda install -n base ipykernel --update-deps --force-reinstall -y && \
     # graph drawing tools
     conda install -y seaborn && \
@@ -108,7 +108,7 @@ RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
 # crates
 RUN rustup install stable
-RUN cargo +stable install exa
+RUN cargo +stable install eza
 RUN cargo +stable install bat
 RUN cargo +stable install cargo-compete
 RUN cargo +stable install cargo-edit
