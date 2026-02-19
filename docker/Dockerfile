@@ -66,23 +66,24 @@ COPY starship.toml ${HOME}/.config/starship.toml
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py311_23.11.0-2-Linux-x86_64.sh && \
     bash Miniconda3-py311_23.11.0-2-Linux-x86_64.sh -b -p /opt/miniconda3 && \
     rm -r Miniconda3-py311_23.11.0-2-Linux-x86_64.sh
-ENV PATH /opt/miniconda3/bin:$PATH
+# 修正: ENVを '=' で繋ぐ形式に変更
+ENV PATH="/opt/miniconda3/bin:${PATH}"
 
 # install python package with conda
 # ipython kernel for jupyter
 RUN conda config --set solver classic
+
+# 修正: seabornにチャンネルを指定。さらに高速化のためインストールを1つにまとめる
 RUN conda install -n base ipykernel --update-deps --force-reinstall -y && \
-    # graph drawing tools
-    conda install -y seaborn && \
-    conda install -c plotly plotly -y && \
-    conda install -c conda-forge nbformat -y && \
-    conda install -c conda-forge python-kaleido -y && \
-    # optuna
-    conda install -c conda-forge optuna -y && \
-    # ML
-    conda install -c conda-forge statsmodels -y && \
-    conda install -c conda-forge scikit-learn -y && \
-    conda install -c conda-forge scipy -y
+    conda install -c conda-forge -c plotly -y \
+    seaborn \
+    plotly \
+    nbformat \
+    python-kaleido \
+    optuna \
+    statsmodels \
+    scikit-learn \
+    scipy
 
 # install python package with pip
 RUN pip install --upgrade pip && \
@@ -93,15 +94,18 @@ RUN pip install --upgrade pip && \
 RUN pip install --user online-judge-tools
 
 # Rust
-ENV RUST_HOME /usr/local/lib/rust
-ENV RUSTUP_HOME ${RUST_HOME}/rustup
-ENV CARGO_HOME ${RUST_HOME}/cargo
+# 修正: ENVを '=' で繋ぐ形式に変更
+ENV RUST_HOME="/usr/local/lib/rust"
+ENV RUSTUP_HOME="${RUST_HOME}/rustup"
+ENV CARGO_HOME="${RUST_HOME}/cargo"
+
 RUN mkdir /usr/local/lib/rust && \
     chmod 0755 $RUST_HOME
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > ${RUST_HOME}/rustup.sh \
     && chmod +x ${RUST_HOME}/rustup.sh \
     && ${RUST_HOME}/rustup.sh -y --default-toolchain 1.70.0 --no-modify-path
-ENV PATH $PATH:$CARGO_HOME/bin
+# 修正: ENVを '=' で繋ぐ形式に変更
+ENV PATH="${PATH}:${CARGO_HOME}/bin"
 
 # wasm
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
