@@ -1,23 +1,33 @@
 # AtCoder用Rust開発環境
 ## 概要
-- vscodeのdevcontainerを使用してAtCoder向けRust環境を構築するツール群
+- AtCoder向けRust開発環境構築ツール群
 - Pythonもインストールされる
     - [ahc_tester](https://github.com/r3yohei/ahc_tester) を使用できるようにするため
 ## 使い方
 ### 環境構築
 - リポジトリをクローンする
-- docker imageをビルドする
-```bash
-cd ./docker
-./build.sh
-```
-- `.env`を作成する
-    - `.env.example`を編集し，ログインに必要な情報を環境変数化する
-- vscodeで開く
-```bash
-code atcoder-rust-devcontainer
-```
-- reopen in containerする
+- vscode devcontainer
+    - docker imageをビルドする
+    ```bash
+    cd ./docker
+    ./build.sh
+    ```
+    - `.env`を作成する
+        - `.env.example`を編集し，ログインに必要な情報を環境変数化する
+    - vscodeで開く
+    ```bash
+    code atcoder-rust-devcontainer
+    ```
+    - reopen in containerする
+- cursor
+    - 開発用の仮想環境を作成する
+    ```bash
+    ./setup-atcoder-env.sh
+    ```
+    - 仮想環境をactivateする
+    ```bash
+    source ~/.local/atcoder-heuristic-env/activate
+    ```
 ### コンテスト参加
 - コンテストディレクトリを作成 
 ```bash
