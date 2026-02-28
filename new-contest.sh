@@ -26,17 +26,6 @@ fi
 CONTEST="$1"
 CONTEST_DIR="$PROJECT_ROOT/src/contest/$CONTEST"
 
-# バリデーション
-if [ -d "$CONTEST_DIR" ]; then
-    echo "エラー: ディレクトリが既に存在します: $CONTEST_DIR"
-    exit 1
-fi
-
-echo "コンテスト '$CONTEST' のプロジェクトを作成しています..."
-
-# ディレクトリ作成
-mkdir -p "$CONTEST_DIR/src/bin"
-
 # compete.toml [template] src および [template.new] dependencies と同等の埋め込みテンプレート
 # heredoc でクォート問題を回避
 SRC_TEMPLATE=$(cat << 'SRC_EOF'
@@ -142,17 +131,25 @@ rustc-hash = "=1.1.0"
 smallvec = { version = "=1.11.0", features = ["const_generics", "const_new", "write", "union", "serde", "arbitrary"] }
 '
 
-# src/bin/a.rs を作成
-echo "$SRC_TEMPLATE" > "$CONTEST_DIR/src/bin/a.rs"
-echo "  作成: $CONTEST_DIR/src/bin/a.rs"
+if [ -d "$CONTEST_DIR" ]; then
+    echo "プロジェクトが既に存在します: $CONTEST_DIR (settings.json の同期のみ実行)"
+else
+    echo "コンテスト '$CONTEST' のプロジェクトを作成しています..."
 
-# -----------------------------------------------------------------------------
-# Cargo.toml を作成
-# -----------------------------------------------------------------------------
-BIN_NAME="${CONTEST}-a"
-ATCODER_URL="https://atcoder.jp/contests/${CONTEST}/tasks/${CONTEST}_a"
+    # ディレクトリ作成
+    mkdir -p "$CONTEST_DIR/src/bin"
 
-cat > "$CONTEST_DIR/Cargo.toml" << CARGO_EOF
+    # src/bin/a.rs を作成
+    echo "$SRC_TEMPLATE" > "$CONTEST_DIR/src/bin/a.rs"
+    echo "  作成: $CONTEST_DIR/src/bin/a.rs"
+
+    # -----------------------------------------------------------------------------
+    # Cargo.toml を作成
+    # -----------------------------------------------------------------------------
+    BIN_NAME="${CONTEST}-a"
+    ATCODER_URL="https://atcoder.jp/contests/${CONTEST}/tasks/${CONTEST}_a"
+
+    cat > "$CONTEST_DIR/Cargo.toml" << CARGO_EOF
 [profile.dev]
 opt-level = 3
 
@@ -176,18 +173,21 @@ $DEPS_TEMPLATE
 
 [dev-dependencies]
 CARGO_EOF
-echo "  作成: $CONTEST_DIR/Cargo.toml"
+    echo "  作成: $CONTEST_DIR/Cargo.toml"
 
-# -----------------------------------------------------------------------------
-# Cargo.lock をコピー（テンプレートがあれば）
-# -----------------------------------------------------------------------------
-if [ -f "$PROJECT_ROOT/template-cargo-lock.toml" ]; then
-    cp "$PROJECT_ROOT/template-cargo-lock.toml" "$CONTEST_DIR/Cargo.lock"
-    echo "  作成: $CONTEST_DIR/Cargo.lock"
+    # -----------------------------------------------------------------------------
+    # Cargo.lock をコピー（テンプレートがあれば）
+    # -----------------------------------------------------------------------------
+    if [ -f "$PROJECT_ROOT/template-cargo-lock.toml" ]; then
+        cp "$PROJECT_ROOT/template-cargo-lock.toml" "$CONTEST_DIR/Cargo.lock"
+        echo "  作成: $CONTEST_DIR/Cargo.lock"
+    fi
 fi
 
 # -----------------------------------------------------------------------------
-# ワークスペースの .vscode/settings.json に
+# settings.json の同期
+# ワークスペースの .vscode/settings.json に rust-analyzer.linkedProjects を追加
+# -----------------------------------------------------------------------------
 # rust-analyzer.linkedProjects を追加（絶対パスで環境非依存）
 # -----------------------------------------------------------------------------
 CARGO_TOML_ABS="$PROJECT_ROOT/src/contest/$CONTEST/Cargo.toml"
@@ -196,41 +196,38 @@ LIB_CARGO_ABS="$PROJECT_ROOT/src/lib/Cargo.toml"
 mkdir -p "$WORKSPACE_ROOT/.vscode"
 TARGET_JSON="$WORKSPACE_SETTINGS_JSON"
 
-if [ ! -f "$TARGET_JSON" ]; then
-    echo '{"rust-analyzer.linkedProjects":[]}' > "$TARGET_JSON"
-fi
-
 if command -v jq &>/dev/null; then
-    if jq empty "$TARGET_JSON" 2>/dev/null; then
-        # rust-analyzer.linkedProjects がなければ初期化（lib + 既存コンテストを絶対パスで）
-        if ! jq -e '(.["rust-analyzer.linkedProjects"] // []) | length > 0' "$TARGET_JSON" &>/dev/null; then
-            # 初回: lib + src/contest 内の全 Cargo.toml を追加
-            PATHS_JSON="[\"$LIB_CARGO_ABS\""
-            while IFS= read -r p; do
-                [ -n "$p" ] && PATHS_JSON="$PATHS_JSON, \"$p\""
-            done < <(find "$PROJECT_ROOT/src/contest" -maxdepth 2 -name "Cargo.toml" 2>/dev/null | sort)
-            PATHS_JSON="$PATHS_JSON]"
-            jq --argjson arr "$PATHS_JSON" '.["rust-analyzer.linkedProjects"] = $arr' "$TARGET_JSON" > "$TARGET_JSON.tmp"
-            mv "$TARGET_JSON.tmp" "$TARGET_JSON"
-        else
-            # 既存の相対パスを絶対パスに正規化（ワークスペースルート基準）
-            jq --arg root "$WORKSPACE_ROOT" '
-                .["rust-analyzer.linkedProjects"] |= map(
-                    if ( . | startswith("/") ) then . else ($root + "/" + ( . | sub("^\\./"; "") )) end
-                )
-            ' "$TARGET_JSON" > "$TARGET_JSON.tmp"
-            mv "$TARGET_JSON.tmp" "$TARGET_JSON"
+    if [ ! -f "$TARGET_JSON" ]; then
+        # ファイルが存在しない: 作成し、lib + src/contest 内の全 Cargo.toml を登録
+        PATHS_JSON="[\"$LIB_CARGO_ABS\""
+        while IFS= read -r p; do
+            [ -n "$p" ] && PATHS_JSON="$PATHS_JSON, \"$p\""
+        done < <(find "$PROJECT_ROOT/src/contest" -maxdepth 2 -name "Cargo.toml" 2>/dev/null | sort)
+        PATHS_JSON="$PATHS_JSON]"
+        if ! jq -n --argjson arr "$PATHS_JSON" '{"rust-analyzer.linkedProjects": $arr}' > "$TARGET_JSON.tmp"; then
+            echo "エラー: settings.json の作成に失敗しました。"
+            rm -f "$TARGET_JSON.tmp"
+            exit 1
         fi
-        if jq -e --arg path "$CARGO_TOML_ABS" '(.["rust-analyzer.linkedProjects"] | index($path)) != null' "$TARGET_JSON" &>/dev/null; then
+        mv "$TARGET_JSON.tmp" "$TARGET_JSON"
+        echo "  作成: $TARGET_JSON (rust-analyzer.linkedProjects に既存プロジェクトを登録)"
+    else
+        # ファイルが存在する: JSON を検証し、今回のプロジェクトがなければ追加
+        if ! jq empty "$TARGET_JSON" 2>/dev/null; then
+            echo "エラー: $TARGET_JSON の JSON が不正です。手動で修正してください。"
+            exit 1
+        fi
+        if jq -e --arg path "$CARGO_TOML_ABS" '(.["rust-analyzer.linkedProjects"] // [] | index($path)) != null' "$TARGET_JSON" &>/dev/null; then
             echo "  (既に rust-analyzer.linkedProjects に登録済み)"
         else
-            jq --arg path "$CARGO_TOML_ABS" '.["rust-analyzer.linkedProjects"] += [$path]' "$TARGET_JSON" > "$TARGET_JSON.tmp"
+            if ! jq --arg path "$CARGO_TOML_ABS" '.["rust-analyzer.linkedProjects"] = (.["rust-analyzer.linkedProjects"] // []) + [$path]' "$TARGET_JSON" > "$TARGET_JSON.tmp"; then
+                echo "エラー: $TARGET_JSON の書き込みに失敗しました。"
+                rm -f "$TARGET_JSON.tmp"
+                exit 1
+            fi
             mv "$TARGET_JSON.tmp" "$TARGET_JSON"
             echo "  更新: $TARGET_JSON に $CARGO_TOML_ABS を追加"
         fi
-    else
-        echo "  警告: $TARGET_JSON の JSON が不正です。手動で rust-analyzer.linkedProjects に以下を追加してください:"
-        echo "    \"$CARGO_TOML_ABS\""
     fi
 else
     echo "  警告: jq がインストールされていません。手動で rust-analyzer.linkedProjects に以下を追加してください:"
