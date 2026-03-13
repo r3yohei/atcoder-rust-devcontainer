@@ -113,12 +113,19 @@ export PATH="$N_PREFIX/bin:$PATH"
 mkdir -p "$N_PREFIX/bin"
 
 # npm のグローバルインストール先を ENV_DIR 内に設定（sudo 不要にする）
-npm config set prefix "$N_PREFIX"
+"$N_PREFIX/bin/npm" config set prefix "$N_PREFIX" 2>/dev/null || npm config set prefix "$N_PREFIX"
 
-if ! command -v n &>/dev/null; then
-    echo "  n をインストール中..."
-    npm install -g n
-fi
+# npm はカレントディレクトリに package.json があることを期待するため、
+# 空の ENV_DIR で実行すると ENOENT になる。一時的に /tmp に移動して実行する
+NPM_SAFE_DIR="$(mktemp -d)"
+trap 'rm -rf "$NPM_SAFE_DIR"' EXIT
+(
+    cd "$NPM_SAFE_DIR"
+    if ! command -v n &>/dev/null; then
+        echo "  n をインストール中..."
+        npm install -g n
+    fi
+)
 
 node_major=$(node -v 2>/dev/null | cut -d. -f1 | tr -d v); node_major=${node_major:-0}
 if ! command -v node &>/dev/null || [ "${node_major:-0}" -lt 20 ]; then
@@ -126,15 +133,24 @@ if ! command -v node &>/dev/null || [ "${node_major:-0}" -lt 20 ]; then
     n lts
 fi
 
+# hash -r で npm のパス解決を更新（n 導入後は N_PREFIX の npm を使う必要がある）
+hash -r 2>/dev/null || true
+
 # Yarn: cmdtest の yarn でないことを確認してからインストール
-if ! command -v yarn &>/dev/null; then
-    echo "  Yarn をインストール中..."
-    npm install -g yarn
-elif yarn --version 2>&1 | grep -q "scenarios"; then
-    echo "  cmdtest の yarn を検出。正しい Yarn をインストール中..."
-    sudo apt remove -y cmdtest 2>/dev/null || true
-    npm install -g yarn
-fi
+(
+    cd "$NPM_SAFE_DIR"
+    # N_PREFIX の npm を明示的に使用（システム npm との競合を避ける）
+    NPM_CMD="$N_PREFIX/bin/npm"
+    [ -x "$NPM_CMD" ] || NPM_CMD="npm"
+    if ! command -v yarn &>/dev/null; then
+        echo "  Yarn をインストール中..."
+        "$NPM_CMD" install -g yarn
+    elif yarn --version 2>&1 | grep -q "scenarios"; then
+        echo "  cmdtest の yarn を検出。正しい Yarn をインストール中..."
+        sudo apt remove -y cmdtest 2>/dev/null || true
+        "$NPM_CMD" install -g yarn
+    fi
+)
 
 # -----------------------------------------------------------------------------
 # 4. Rust (1.89.0)
